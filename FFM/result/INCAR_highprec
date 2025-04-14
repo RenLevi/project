@@ -1,0 +1,47 @@
+SYSTEM = O2
+#ISYM = 0
+ISTART = 0        # 0 = new job, 1 = restart
+
+! Electronic Structure
+ISPIN  = 1        # spin polarisation 1 = no 2 = yes
+PREC   = Normal   # [Low/Medium/High/Accurate/Normal]
+ENCUT  = 450      # energy cutoff
+NELM   = 300      # max iteracions in SC loop
+NELMIN = 3        # min iterations in SC loop
+ISMEAR = 0; SIGMA = 0.05  #-5 for accurate total energy and DOS 0 for large cell 1 for metal
+LREAL  = A        # F small molecule; A normal system 
+EDIFF  = 5.0E-6   # [Global break cond. for the elec. SC-loop] Energy
+ALGO   = Fast     # PBE;PW91 pure DFT
+
+#AMIX = 0.4
+#BMIX = 0.2
+#AMIX_MAG = 0.8
+#BMIX_MAG = 0.0001
+#LMAXMIX=6       # 4 for d orbit 6 for f orbit
+VOSKOWN = 0      # 0 for PBE 1 for PW91
+#MAGMOM = 9*0.0 #magnetic
+#GGA = RP
+IVDW=12
+
+! GGA+U
+#LDAU= T
+#LDAUTYPE= 2
+#LDAUL =    -1  
+#LDAUU =  0.0000
+#LDAUJ =  0.0000
+
+! Geometry 
+ISIF   = 2        # 3 for JB-opt 2 for others
+EDIFFG = -0.05    # convergence criterion for forces
+NSW = 2000           # max steps
+IBRION = 2        # 0 MD 1 Brodyn (opt,TS) 2 CG (opt)  3 damped MD(opt) 5  FC 
+POTIM=0.1         # ion step size/ time step (fs) for MD
+
+NWRITE = 1        # how much is written out
+LCHARG = .False.  # write restart charge file
+LWAVE  = .False.  # write restart wf file
+NPAR   = 4        # 2 for 24 cores and 3 for 12 cores and 4 for 48 cores and 6 for 72 cores
+
+#ICHARG = 11
+#LORBIT = 11
+#NEDOS = 800
