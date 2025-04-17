@@ -1,0 +1,58 @@
+digraph html {aHbCO[label=<[H]CO> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+OCO[label=<OCO> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbOCO[label=<[H]OCO> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCcOdO[label=<[H]C(O)O> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCcaHbdcaHbdO[label=<[H]C([H])([H])O> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCcaHbdcOdO[label=<[H]C([H])(O)O> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+C[label=<C> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbOCcaHbdO[label=<[H]OC([H])O> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCcaHbdO[label=<[H]C([H])O> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbOCcaHbdcaHbdaHb[label=<[H]OC([H])([H])[H]> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbOCcaHbdaHb[label=<[H]OC([H])[H]> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+CO[label=<CO> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCcaHbdcaHbdaHb[label=<[H]C([H])([H])[H]> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbOCcaHbdcaHbdO[label=<[H]OC([H])([H])O> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCaHb[label=<[H]C[H]> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbC[label=<[H]C> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbOC[label=<[H]OC> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCcaHbdaHb[label=<[H]C([H])[H]> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+aHbCOaHb[label=<[H]CO[H]> fontsize=80 penwidth=1 arrowsize=10 , fontname="arial" ];
+C->CO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+CO->OCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbC->aHbCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdO->aHbCcaHbdcOdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdcaHbdO->aHbCcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCO->aHbCcOdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCOaHb->aHbOCcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdO->aHbCaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOC->aHbOCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdcaHbdO->aHbOCcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+CO->aHbCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcOdO->OCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcOdO->aHbCcaHbdcOdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdcaHbdO->aHbCcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCO->aHbCcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCOaHb->aHbOCcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOC->aHbCOaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdO->aHbOCcaHbdcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdcaHbdaHb->aHbOCcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdO->aHbOCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOC->CO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+OCO->aHbOCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcOdO->aHbOCcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdcOdO->aHbOCcaHbdcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdcaHbdO->aHbOCcaHbdcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdaHb->aHbCcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCO->aHbCOaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbC->C[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdcaHbdaHb->aHbCcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdaHb->aHbCaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbC->aHbCaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbC->aHbCOaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+C->aHbOC[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdcaHbdO->aHbCcaHbdO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbCcaHbdaHb->aHbOCcaHbdcaHbdaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdO->aHbCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+aHbOCcaHbdaHb->aHbCaHb[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+CO->aHbOCO[penwidth=5 arrowType=open arrowsize=2 arrowhead="none"]
+}

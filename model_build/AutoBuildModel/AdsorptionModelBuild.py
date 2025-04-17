@@ -1,7 +1,6 @@
 from aseAtoms_to_adAtoms import mollist_to_adGroup_files
 from SMILES_to_aseAtoms import mollist_to_files
 from molecule_ad_Cat import build_random_system
-from model_build.AutoBuildModel.trash.CIF2POS import *  
 """"
     
     DO NOT name your file as 'mollist.txt',if your file is NOT created by CNnet

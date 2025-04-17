@@ -1,0 +1,20 @@
+We total got 19 mol 
+[H]CO
+OCO
+[H]OCO
+[H]C(O)O
+[H]C([H])([H])O
+[H]C([H])(O)O
+C
+[H]OC([H])O
+[H]C([H])O
+[H]OC([H])([H])[H]
+[H]OC([H])[H]
+CO
+[H]C([H])([H])[H]
+[H]OC([H])([H])O
+[H]C[H]
+[H]C
+[H]OC
+[H]C([H])[H]
+[H]CO[H]
