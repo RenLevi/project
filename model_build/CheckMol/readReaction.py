@@ -1,6 +1,6 @@
 from rdkit import Chem
 from rdkit.Chem import rdmolops
-from JmolNN import *
+from CheckNN import *
 from ase.io import write
 import numpy as np
 def add_brackets_around_letters(cnmol:str):# 使用正则表达式替换不在[]中的字母字符，前后添加[]:example:[H]CO==>[H][C][O]
@@ -80,16 +80,25 @@ def checkbond(reaction:list,bms1,bms2):
             else:
                 return o1,o2
             
-'''def check_molecule_over_surface_and_not_cross_pbc(atoms):
+def check_molecule_over_surface_and_not_cross_pbc(atoms):
     z_max = 16.415
-
-    if z_min_mol < z_max:
+    z_plist=[]
+    nonmetals = ['H', 'He', 
+                 'B', 'C', 'N', 'O', 'F', 'Ne',
+                 'Si', 'P', 'S', 'Cl', 'Ar',
+                 'Ge', 'As', 'Se', 'Br', 'Kr',
+                 'Sb', 'Te', 'I', 'Xe',
+                 'Po', 'At', 'Rn']
+    for atom in atoms:
+        symbol = atom.symbol
+        if symbol in nonmetals:
+            z_pos = atom.position[2]  # z坐标是position数组的第三个元素
+            z_plist.append(z_pos)
+    z_min = min(z_plist)
+    if z_min < z_max:
         print(f'部分原子位于催化剂表面以下')
         return False
-    elif molecule_center[2] > z_min_mol:
-        print(f'吸附原子未位于最靠近表面位置')
-        return False
-    return True'''
+    else:    return True
 
 def adjust_distance(atoms, index1, index2,idlist,new_distance,delta=0):
     """
@@ -165,36 +174,38 @@ class readreaction():
             idlist = check_neighbor(Eid_infile,CB)
             idlist.remove(Bid_infile)
             newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,2)#2埃
+            if check_molecule_over_surface_and_not_cross_pbc(newmol) == False:
+                newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,2,1)
         else:
             idlist = check_neighbor(Bid_infile,CB)
             idlist.remove(Eid_infile)
             newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,2)
+            if check_molecule_over_surface_and_not_cross_pbc(newmol) == False:
+                newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,2,1)
         self.nebIS = newmol
         self.check =smilesFORcheck 
     def save(self,path,format):
-        IS = path[0]
-        FS = path[1]
         # 保存为POSCAR文件（VASP格式）
-        if format=='poscar' or 'POSCAR':
-            write(IS+'POSCAR', self.nebIS, format='vasp', vasp5=True)  # vasp5=True添加元素名称
-            write(FS+'POSCAR', self.nebFS, format='vasp', vasp5=True)  # vasp5=True添加元素名称
-        if format =='cif' or 'CIF':
-            # 保存为CIF文件
-            write(IS+'IS.cif', self.nebIS, format='cif')
-            write(FS+'FS.cif', self.nebIS, format='cif')
-        #test IS /optional    
+        if format=='poscar' or 'POSCAR' or 'vasp':
+            write(path+'IS.vasp', self.nebIS, format='vasp', vasp5=True)  # vasp5=True添加元素名称
+            write(path+'FS.vasp', self.nebFS, format='vasp', vasp5=True)  # vasp5=True添加元素名称
+        else:
+            print('format should be .vasp')
+        #test IS whether the bond ia breaked     
         test = checkBonds()
-        test.input(IS+'POSCAR')
+        test.input(path+'IS.vasp')
         if test.CheckPBC() == True:
             test.AddAtoms()
             test.CheckAllBonds()
         else:
-            pass   
+            print('something wrong with pbc')   
         output = BuildMol2Smiles(test)
         output.build()
-        print(f'IS:{output.smiles}',output.smiles == self.check)
+        print(f'IS:{output.smiles}',output.smiles == self.check,'\n'
+              'Error:the bond that should be breaked is not breaked'
+              )
         if output.ads == []:
-            print('错误')        
+            print('Warning:there is not adsportion in model')        
             
 
 
@@ -205,7 +216,7 @@ if (__name__ == "__main__"):
     file1 = "C:/Users/renyq/Desktop/result/neb/Ru_[H]OC([H])O/nequipOpt.traj"
     file2 = 'C:/Users/renyq/Desktop/result/neb/Ru_[H]OC([H])([H])O/nequipOpt.traj'
     reaction ='[H]OC([H])O > Add H on C > [H]OC([H])([H])O'
-    PATH =  ["C:/Users/renyq/Desktop/result/nebs/IS/","C:/Users/renyq/Desktop/result/nebs/FS/"]
+    PATH =  "C:/Users/renyq/Desktop/result/nebs/"
     RR = readreaction(file1,file2,reaction)
     RR.readfile()
     RR.save(PATH,'POSCAR')

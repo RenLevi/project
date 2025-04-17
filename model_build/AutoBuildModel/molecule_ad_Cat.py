@@ -2,7 +2,6 @@
 from ase import Atoms
 from ase.build import rotate
 from ase.build import hcp0001
-from ase.build import fcc111
 from ase.io import read, write
 import numpy as np
 from ase.constraints import FixAtoms
@@ -13,24 +12,21 @@ import re
 def save_file(save_path,filename,model):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    write(os.path.join(save_path, filename), model)
+    write(os.path.join(save_path, filename), model, format='vasp', vasp5=True, direct=True)
+    with open(os.path.join(save_path, filename), 'r') as f:
+        lines = f.readlines()
+        print("".join(lines[5:8]))  # 查看坐标行示例
 ## 建模金属表面
 def build_slab(element,size,vacuum,fix_num,save_path):#元素，尺寸，真空层厚度，保存格式，保存路径:mol_to_ad，固定底层原子层数
     x=size[0]
     y=size[1]
     #z=size[2]
-    if element == 'Ru':
-        matel_surface = hcp0001(element, size=size, vacuum=vacuum)
-    else:
-        matel_surface = fcc111(element, size=size, vacuum=vacuum)
+    matel_surface = hcp0001(element, size=size, vacuum=vacuum)#可更改表面
     z_coords = matel_surface.positions[:, 2]
-    fix_num=x*y*fix_num
-    fixed_indices = np.where(z_coords < z_coords[fix_num])[0]
+    threshold = fix_num*x*y
+    fixed_indices = list(range(0, threshold))
     matel_surface.constraints = [FixAtoms(indices=fixed_indices)]
-    if element == 'Ru':
-        slabname = element+'_hcp0001'+'.cif'
-    else:
-        slabname = element+'_fcc111'+'.cif'
+    slabname = element+'_hcp0001'+'.vasp'
     slab_save_path = save_path+'/slab'#保存至子文件夹
     save_file(slab_save_path,slabname,matel_surface)
     return matel_surface
@@ -160,7 +156,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
                 system = place_mol_on_surface(mol,ru_surface,sv)
                 if check_dist_between_atoms(system) == True and check_molecule_over_surface_and_not_cross_pbc(ru_surface,mol,sv) == True:
                     floder_n = save_path+'/'+element+adG_n
-                    file_n='random_model'+str(j)+element+adG_n+'.cif'
+                    file_n='random_model'+str(j)+element+adG_n+'.vasp'
                     save_file(floder_n,file_n,system)
                     j=j+1
                 else:
@@ -180,7 +176,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
                 system = place_mol_on_surface(mol,ru_surface,sv)
                 if check_dist_between_atoms(system) == True and check_molecule_over_surface_and_not_cross_pbc(ru_surface,mol,sv) == True:
                     floder_n = save_path+'/'+element+'_'+adGroup_name
-                    file_n='random_model'+str(j)+element+'_'+adGroup_name+'.cif'
+                    file_n='random_model'+str(j)+element+'_'+adGroup_name+'.vasp'
                     save_file(floder_n,file_n,system)
                     j=j+1
                 else:
