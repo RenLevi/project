@@ -8,6 +8,57 @@ from ase.constraints import FixAtoms
 import copy
 import os
 import re
+#str to code
+def char_to_value_extended(c):
+    """将字符转换为数值（支持字母、数字和常见符号）"""
+    if '0' <= c <= '9':
+        return ord(c) - ord('0')  # 0-9
+    elif 'a' <= c <= 'z':
+        return ord(c) - ord('a') + 10  # 10-35
+    elif 'A' <= c <= 'Z':
+        return ord(c) - ord('A') + 36  # 36-61
+    else:
+        # 常见符号映射到62-93
+        common_symbols = " !@#$%^&*()_+-=[]{};':\",./<>?\\|`~"
+        if c in common_symbols:
+            return 62 + common_symbols.index(c)
+        else:
+            raise ValueError(f"不支持的字符: {c}")
+
+def value_to_char_extended(v):
+    """将数值转换回字符"""
+    if 0 <= v <= 9:
+        return chr(v + ord('0'))
+    elif 10 <= v <= 35:
+        return chr(v - 10 + ord('a'))
+    elif 36 <= v <= 61:
+        return chr(v - 36 + ord('A'))
+    else:
+        common_symbols = " !@#$%^&*()_+-=[]{};':\",./<>?\\|`~"
+        if 62 <= v < 62 + len(common_symbols):
+            return common_symbols[v - 62]
+        else:
+            raise ValueError(f"无效值: {v}")
+
+def encode_extended(s):
+    """编码包含字母、数字和符号的字符串"""
+    num = 0
+    for c in s:
+        num = num * 94 + char_to_value_extended(c)  # 总共94种字符
+    return num
+
+def decode_extended(num):
+    """解码扩展编码的数字"""
+    if num == 0:
+        return "0"
+    
+    s = []
+    while num > 0:
+        s.append(value_to_char_extended(num % 94))
+        num = num // 94
+    return ''.join(reversed(s))
+
+
 ## 模型保存
 def save_file(save_path,filename,model):
     if not os.path.exists(save_path):
@@ -46,9 +97,9 @@ def place_mol_on_surface(mol,surface,shift_vector):#place molecule
     z_max = max(surfacecopy.positions[:, 2])
     # 计算分子的结合位点,将分子的质心移动到这个高度
     molecule_center = shift_vector + np.array([0,0,z_max])
-    coordinates = mol.get_positions()#
-    average_coordinates = coordinates.mean(axis=0)#
-    mol.translate(molecule_center-average_coordinates)#
+    coordinates = mol.get_positions()
+    average_coordinates = coordinates.mean(axis=0)
+    mol.translate(molecule_center-average_coordinates)
     # 将分子添加到表面上
     system = surfacecopy + mol
     return system
@@ -60,7 +111,7 @@ def random_place(size):
     # 随机参数范围！！！
     x_range = [0,2.7*x]#Ru-Ru = 2.7A
     y_range = [0,2.7*y*((3**0.5)/2)]
-    z_range = [2,5]
+    z_range = [3,5]#can change
     x_sv = np.random.uniform(x_range[0], x_range[1])
     y_sv = np.random.uniform(y_range[0], y_range[1])
     z_sv = np.random.uniform(z_range[0], z_range[1])
@@ -94,18 +145,16 @@ def check_dist_between_atoms(structure):
     return True
 
 ## 检查分子是否位于表面以上 & 吸附原子是否位于分子最下方
-def check_molecule_over_surface_and_not_cross_pbc(surface,mol,sv):
-    z_max = max(surface.positions[:,2])
-    molecule_center = sv + np.array([0,0,z_max])
-    molcopy = copy.deepcopy(mol)
-    molcopy.translate(molecule_center)
-    z_min_mol = min(molcopy.positions[:,2])
+def check_molecule_over_surface(surface,mol,sv):
+    z_max = max(surface.positions[:,2])+2#高于表面2A的距离
+    #molecule_center = sv + np.array([0,0,z_max])
+    z_min_mol = min(mol.positions[:,2])
     if z_min_mol < z_max:
-        print(f'部分原子位于催化剂表面以下')
+        print(f'部分原子距离催化剂表面不到2埃')
         return False
-    elif molecule_center[2] > z_min_mol:
+    '''elif molecule_center[2] > z_min_mol:
         print(f'吸附原子未位于最靠近表面位置')
-        return False
+        return False'''
     return True
             
 ## 读取分子
@@ -135,7 +184,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
     txt_name = save_path + '//floder_name.txt'
     with open(txt_name, 'w') as file:
         pass
-    if 'ASEtoadG_output' in moltxt:
+    if 'ASEtoadG_output' in moltxt:#未完成
         for i in range(group_num):
             path_of_mol = molfloder+'//'+adGroup_filelist[i]
             addfile = list(adGroup_filelist[i].split('_')) 
@@ -154,9 +203,9 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
                 sv,theta_z,varphi_y = random_place(size)
                 mol = rotate_mol(adGroup_mol,(theta_z,'z'),(varphi_y,'y'))
                 system = place_mol_on_surface(mol,ru_surface,sv)
-                if check_dist_between_atoms(system) == True and check_molecule_over_surface_and_not_cross_pbc(ru_surface,mol,sv) == True:
-                    floder_n = save_path+'/'+element+adG_n
-                    file_n='random_model'+str(j)+element+adG_n+'.vasp'
+                if check_dist_between_atoms(system) == True and check_molecule_over_surface(ru_surface,mol,sv) == True:
+                    floder_n = save_path+'/'+adG_n
+                    file_n=str(j)+'_'+adG_n+'.vasp'
                     save_file(floder_n,file_n,system)
                     j=j+1
                 else:
@@ -167,16 +216,17 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
             adGroup_mol = read(path_of_mol)
             adGroup_name = adGroup_namelist[i]
             with open(txt_name, 'a') as file:
-                species_file_floder_name = element+'_'+adGroup_name
+                species_file_floder_name = adGroup_name
                 file.write(f'{species_file_floder_name}:{adGroup_name}\n')
             j = 1
             while j <= random_mol_num:#随机模型数量
                 sv,theta_z,varphi_y = random_place(size)
                 mol = rotate_mol(adGroup_mol,(theta_z,'z'),(varphi_y,'y'))
                 system = place_mol_on_surface(mol,ru_surface,sv)
-                if check_dist_between_atoms(system) == True and check_molecule_over_surface_and_not_cross_pbc(ru_surface,mol,sv) == True:
-                    floder_n = save_path+'/'+element+'_'+adGroup_name
-                    file_n='random_model'+str(j)+element+'_'+adGroup_name+'.vasp'
+                if check_dist_between_atoms(system) == True and check_molecule_over_surface(ru_surface,mol,sv) == True:
+                    floder_n = save_path+'/'+adGroup_name
+                    #file_n=str(j)+'_'+adGroup_name+'.vasp'
+                    file_n = 'POSCAR'
                     save_file(floder_n,file_n,system)
                     j=j+1
                 else:

@@ -1,5 +1,4 @@
 from ase.io import read
-import numpy as np
 from JmolNN import bond
 from ase import atom
 from rdkit import Chem
@@ -322,7 +321,7 @@ class BuildMol2Smiles():
 
 if (__name__ == "__main__"):
     test = checkBonds()
-    test.input('cal/output/mol_to_ad/[H]C/POSCAR')
+    test.input('cal\\nequipOpt.traj')
     if test.CheckPBC() == True:
         test.AddAtoms()
         test.CheckAllBonds()

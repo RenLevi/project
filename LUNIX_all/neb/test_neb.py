@@ -3,7 +3,7 @@ from ase.io import read, write
 from nequip.ase import NequIPCalculator
 from ase.neb import NEB
 
-model_path = '/public/home/ac877eihwp/haoyl/potential/test/again/prototypeModel.pth'
+model_path = '/public/home/ac877eihwp/renyq/val/prototypeModel.pth'
 calc = NequIPCalculator.from_deployed_model(model_path, device='cpu')
 
 
@@ -43,7 +43,7 @@ def read_data(file_name):
     BFGS(Atoms).run(fmax=0.01)
     return Atoms
 
-IS, FS = read_data('POSCAR'), read_data('POSCAR2')
+IS, FS = read_data('IS.vasp'), read_data('FS.vasp')
 #write('IS7.xyz', IS)
 #write('FS7.xyz', FS)
 
