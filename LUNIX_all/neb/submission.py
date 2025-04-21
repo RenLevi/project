@@ -56,29 +56,17 @@ def run_command_in_directory(directory, command):
         os.chdir(original_dir)
         print(f"已恢复工作目录到: {original_dir}")
 
-def change_filemat_in_windows_for_smiles2ase2ad(path1,path2):
-    folder_dict = txt_to_dict(path1)
-    namelist = list(folder_dict.keys())
-    smileslist =list(folder_dict.values())
-    for foldername in namelist:
-        fp = path2+foldername+'/'
-        file = f'random_model1{foldername}.cif'
-        target_directory = fp  # 替换为你的目标目录
-        command_to_run = f'ase convert {file} POSCAR'  # 替换为你想运行的命令
-        run_command_in_directory(target_directory, command_to_run)
-        
 if __name__ == "__main__":
     # 示例用法
-    path1 = 'cal/output/mol_to_ad/floder_name.txt'
-    path2 = 'cal/output/mol_to_ad/'
+    path1 = '/public/home/ac877eihwp/renyq/workload/cal/output/neb/foldername.txt'
+    path2 = '/public/home/ac877eihwp/renyq/workload/cal/output/neb/'
     folder_dict = txt_to_dict(path1)
     namelist = list(folder_dict.keys())
     smileslist =list(folder_dict.values())
     for foldername in namelist:
-        fp = path2+foldername+'/'
-        file = f'random_model1{foldername}.cif'
+        fp = path2+foldername
         target_directory = fp  # 替换为你的目标目录
-        command_to_run = f'ase convert {file} POSCAR'  # 替换为你想运行的命令
+        command_to_run = "qsub jobsubneb.sh"  # 替换为你想运行的命令
     
     # 也可以使用列表形式传递命令(推荐，更安全)
     # command_to_run = ["ls", "-l"]
