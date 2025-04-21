@@ -1,4 +1,5 @@
 '''v1.0.7'''
+import ast
 from ase import Atoms
 from ase.build import rotate
 from ase.build import hcp0001
@@ -189,14 +190,14 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
             path_of_mol = molfloder+'//'+adGroup_filelist[i]
             addfile = list(adGroup_filelist[i].split('_')) 
             adGroup_mol = read(path_of_mol)
-            adGroup_name = adGroup_namelist[i]
+            adGroup_name = ast.literal_eval(adGroup_namelist[i])[-1]
             contains_star = '*' in adGroup_name
             if contains_star == True:
                 adG_n = re.sub(r"\*", "-", adGroup_name)
             else:
                 adG_n = re.sub(r"^", "--",adGroup_name)
             with open(txt_name, 'a') as file:
-                species_file_floder_name = element+adG_n+'_'+addfile[0]
+                species_file_floder_name = adG_n+'_'+addfile[0]
                 file.write(f'{species_file_floder_name}:{addfile[0]}\n')
             j = 1
             while j <= random_mol_num:#随机模型数量
@@ -205,7 +206,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
                 system = place_mol_on_surface(mol,ru_surface,sv)
                 if check_dist_between_atoms(system) == True and check_molecule_over_surface(ru_surface,mol,sv) == True:
                     floder_n = save_path+'/'+adG_n
-                    file_n=str(j)+'_'+adG_n+'.vasp'
+                    file_n='POSCAR'
                     save_file(floder_n,file_n,system)
                     j=j+1
                 else:
