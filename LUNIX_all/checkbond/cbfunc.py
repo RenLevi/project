@@ -39,27 +39,28 @@ if __name__ == "__main__":
     for i in range(len(namelist)):
         foldername = namelist[i]
         sminame = smileslist[i]
-        fp = path2+foldername
-        test = checkBonds()
-        test.input(fp+'/opt.vasp')
-        if test.CheckPBC() == True:
-            test.AddAtoms()
-            test.CheckAllBonds()
-        else:
-            pass
-        output = BuildMol2Smiles(test)
-        output.build()
-        if output.smiles == foldername or output.smiles == sminame and output.ads != []:
-            with open(txt1, 'a') as file:
-                file.write(f'{foldername}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
-                print(f'{foldername} check pass')
-        else:
-            with open(txt2,'a') as file:
-                file.write(f'{foldername}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
-                if output.smiles != foldername:
-                    print(f'{foldername} have wrong with SMILES')
-                if output.ads == []:
-                    print(f'{foldername} have wrong with adsorption')
+        for i in range(1,2):
+            fp = path2+foldername+'/'+str(i)
+            test = checkBonds()
+            test.input(fp+'/opt.vasp')
+            if test.CheckPBC() == True:
+                test.AddAtoms()
+                test.CheckAllBonds()
+            else:
+                pass
+            output = BuildMol2Smiles(test)
+            output.build()
+            if output.smiles == foldername  and output.ads != []:
+                with open(txt1, 'a') as file:
+                    file.write(f'{foldername}_{i}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
+                    print(f'{foldername}_{i} check pass')
+            else:
+                with open(txt2,'a') as file:
+                    file.write(f'{foldername}_{i}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
+                    if output.smiles != foldername:
+                        print(f'{foldername}_{i} have wrong with SMILES')
+                    if output.ads == []:
+                        print(f'{foldername}_{i} have wrong with adsorption')
 
 
             
