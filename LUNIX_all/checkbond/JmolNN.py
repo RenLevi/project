@@ -15,5 +15,5 @@ class bond():
             return 1
         else:
             return 0
-        
+
 

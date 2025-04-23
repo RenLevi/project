@@ -9,7 +9,7 @@
 #SBATCH -e %j.err
 
 source ~/.bashrc
-conda activate nequip
+conda activate op
 
 echo "Starting optimization" | tee -a resLog.out
 python test_neb.py | tee -a resLog.out

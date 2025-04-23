@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J C1opt		         #作业名
+#SBATCH -J opt_20		         #作业名
 #SBATCH -p wzhcnormal            #队列名
 #SBATCH -N 1                     #节点数
 #SBATCH --ntasks-per-node=28     #每节点进程数
@@ -9,7 +9,7 @@
 #SBATCH -e %j.err
 
 source ~/.bashrc
-conda activate nequip
+conda activate op
 
 echo "Starting optimization" | tee -a resLog.out
 python mlp_calEnergy.py | tee -a resLog.out

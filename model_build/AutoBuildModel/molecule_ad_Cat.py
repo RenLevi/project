@@ -112,7 +112,7 @@ def random_place(size):
     # 随机参数范围！！！
     x_range = [0,2.7*x]#Ru-Ru = 2.7A
     y_range = [0,2.7*y*((3**0.5)/2)]
-    z_range = [2,5]#can change
+    z_range = [1,5]#can change
     x_sv = np.random.uniform(x_range[0], x_range[1])
     y_sv = np.random.uniform(y_range[0], y_range[1])
     z_sv = np.random.uniform(z_range[0], z_range[1])
@@ -147,11 +147,11 @@ def check_dist_between_atoms(structure):
 
 ## 检查分子是否位于表面以上 & 吸附原子是否位于分子最下方
 def check_molecule_over_surface(surface,mol,sv):
-    z_max = max(surface.positions[:,2])+2#高于表面2A的距离
+    z_max = max(surface.positions[:,2])+0.5#高于表面0.5A的距离
     #molecule_center = sv + np.array([0,0,z_max])
     z_min_mol = min(mol.positions[:,2])
     if z_min_mol < z_max:
-        print(f'部分原子距离催化剂表面不到2埃')
+        print(f'部分原子距离催化剂表面不到0.5埃')
         return False
     '''elif molecule_center[2] > z_min_mol:
         print(f'吸附原子未位于最靠近表面位置')
@@ -225,7 +225,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
                 mol = rotate_mol(adGroup_mol,(theta_z,'z'),(varphi_y,'y'))
                 system = place_mol_on_surface(mol,ru_surface,sv)
                 if check_dist_between_atoms(system) == True and check_molecule_over_surface(ru_surface,mol,sv) == True:
-                    floder_n = save_path+'/'+adGroup_name+'/'+str(j)
+                    floder_n = save_path+'/'+adGroup_name+'/'+'struct_'+str(j)
                     #file_n=str(j)+'_'+adGroup_name+'.vasp'
                     file_n = 'POSCAR'
                     save_file(floder_n,file_n,system)
