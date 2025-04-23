@@ -22,5 +22,5 @@ print(f"finish saving all files of adsorption Group in folder called {folderName
 #print(f"finish saving all files of free radical in folder called {folderName[1]}")
 
 '''生成随机结构'''
-build_random_system(element,(4,4,4),savePath+folderName[0]+'//species_name.txt',savePath+folderName[0]+'//species',savePath+folderName[2],1)
-print(f"finish saving all files of adsorption Systems in folder called {folderName[2]}")
+#build_random_system(element,(4,4,4),savePath+folderName[0]+'//species_name.txt',savePath+folderName[0]+'//species',savePath+folderName[2],1)
+#print(f"finish saving all files of adsorption Systems in folder called {folderName[2]}")
