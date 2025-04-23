@@ -36,7 +36,9 @@ if __name__ == "__main__":
         pass
     with open(txt2, 'w') as file:
         pass
-    for foldername in namelist:
+    for i in range(len(namelist)):
+        foldername = namelist[i]
+        sminame = smileslist[i]
         fp = path2+foldername
         test = checkBonds()
         test.input(fp+'/opt.vasp')
@@ -47,13 +49,13 @@ if __name__ == "__main__":
             pass
         output = BuildMol2Smiles(test)
         output.build()
-        if output.smiles == foldername: #and output.ads != []:
+        if output.smiles == foldername or output.smiles == sminame and output.ads != []:
             with open(txt1, 'a') as file:
-                file.write(f'{foldername}:[{output.smiles},{output.smiles == foldername},{output.ads != []}]\n')
+                file.write(f'{foldername}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
                 print(f'{foldername} check pass')
         else:
             with open(txt2,'a') as file:
-                file.write(f'{foldername}:[{output.smiles},{output.smiles == foldername},{output.ads != []}]\n')
+                file.write(f'{foldername}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
                 if output.smiles != foldername:
                     print(f'{foldername} have wrong with SMILES')
                 if output.ads == []:

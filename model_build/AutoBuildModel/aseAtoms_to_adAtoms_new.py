@@ -1,6 +1,7 @@
 '''v1.1.0'''
 #input:txt of SMILES ===> output:.xyz of ads_molecules(Product,Reactant,Intermediate)
 from openbabel import pybel
+import openbabel as ob
 import numpy as np
 from ase import Atoms
 from ase.io import write
@@ -8,8 +9,6 @@ from rdkit import Chem
 import os
 import re
 import copy
-from ase.build import rotate
-#############################向输入的SMILES表达式中添加虚拟原子###################################################
 def are_vectors_parallel(v1, v2, tol=1e-6):
     """
     检查两向量是否方向相同（或相反）。
@@ -66,13 +65,13 @@ def Bond_to_adGroup(smiles,adatomIdx):
 def Bond_to_adMol_regadless_volence(smiles,adatomIdx):
     m = Chem.AddHs(Chem.MolFromSmiles(smiles))
     mw = Chem.RWMol(m)
-    ghost_atom_index = mw.AddAtom(Chem.Atom(0))
+    ghost_atom_index = mw.AddAtom(Chem.Atom(16))
     mw.AddBond(adatomIdx, ghost_atom_index, Chem.BondType.SINGLE)
     m_edit = mw.GetMol()
     m_edit.UpdatePropertyCache(strict=False)  # 不严格检查化合价
     Chem.SanitizeMol(m_edit, Chem.SANITIZE_ALL ^ Chem.SANITIZE_PROPERTIES)  # 跳过化合价检查
     # 输出 SMILES（可能不合理，但 RDKit 不会报错）
-    smi = add_brackets_around_letters(Chem.MolToSmiles(m_edit))
+    smi = add_brackets_around_letters(Chem.MolToSmiles(m_edit,rootedAtAtom=ghost_atom_index))
     return smi #*[C]([H])([H])([H])[H]
 ## 查询吸附原子
 def find_ads_atoms(smiles):
@@ -120,15 +119,15 @@ def find_mol_ad_atoms(smiles):
 ## 输出吸附基团的xyz文件
 def SMILES_to_adGroup(smi,sy,adAtom,file_format,save_path,txt_name):
     if sy == None:
-        #print(smi)
         smiles = Bond_to_adGroup(smi[0],adAtom)
     elif sy == 'C':
-        #print(smi)
         smiles = Bond_to_adMol_regadless_volence(smi[0],adAtom)
     elif sy == 'N&O':
-        #print(smi)
         smiles = Bond_to_adMol_regadless_volence(smi[0],adAtom)  
-    file_smi=re.sub(r"\*", "-", smiles)
+    if '*' in smiles:
+        file_smi=re.sub(r"\*", "-", smiles)
+    else:
+        file_smi=re.sub(r"\[S\]", "--", smiles)
     molecule = pybel.readstring("smi", smiles)
     molecule.make3D(forcefield='mmff94', steps=100)
     # 创建ASE的Atoms对象
@@ -142,12 +141,6 @@ def SMILES_to_adGroup(smi,sy,adAtom,file_format,save_path,txt_name):
         atom_position = np.array([float(i) for i in atom.coords])
         molecule_geo.append(atom_type)
         molecule_geo.positions[-1] = atom_position
-    for atom in molecule_geo:
-        if atom.number == 0:
-            atom.mass==101
-        else:
-            pass
-    print("修改后的质量:", [atom.mass for atom in molecule_geo])  # [1.0, 1.0, 10.0]
 
     v_important = molecule_geo.positions[0]-molecule_geo.positions[1]
     z= np.array([0,0,-1])
@@ -159,13 +152,13 @@ def SMILES_to_adGroup(smi,sy,adAtom,file_format,save_path,txt_name):
     val=molecule_geo.positions[0]-molecule_geo.positions[1]
     if are_vectors_parallel(val,np.array([0,0,-1])) == False:
         molecule_geo = rotate_mol(molecule_geo,(-2*theta,axis_vz))
-    #del molecule_geo[0]
+    del molecule_geo[0]
     file_name=smi[1]+'_'+file_smi+'.'+file_format#可更改文件保存路径以及格式
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     write(os.path.join(save_path, file_name), molecule_geo)
     with open(txt_name, 'a') as file:
-        file.write(f'{[smi[1],smiles]}:{file_name}\n')
+        file.write(f'{[smi[1],re.sub(r"\[S\]", "", smiles)]}:{file_name}\n')
 def adGroup_modeling(smiles_fromCN,file_format,save_path,txt_name):
     smi =(enumerate_smiles(add_brackets_around_letters(smiles_fromCN)),smiles_fromCN)#([CH2]O,[H]C[H]O[H])
     adslist = find_ads_atoms(smi[0])

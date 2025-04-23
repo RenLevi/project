@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J C1opt		         #作业名
-#SBATCH -p ihicnormal            #队列名
+#SBATCH -p wzhcnormal            #队列名
 #SBATCH -N 1                     #节点数
 #SBATCH --ntasks-per-node=28     #每节点进程数
 #SBATCH --cpus-per-task=1        #每进程占用核心数

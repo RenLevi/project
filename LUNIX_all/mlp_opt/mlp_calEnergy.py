@@ -6,7 +6,7 @@ import os
 import sys
 import logging
 
-nequipModel=NequIPCalculator.from_deployed_model(model_path='/public/home/ac877eihwp/renyq/val/prototypeModel.pth',device='cpu')
+nequipModel=NequIPCalculator.from_deployed_model(model_path='/work/home/ac877eihwp/renyq/LUNIX_all/mlp_opt/prototypeModel.pth',device='cpu')
 
 #vasp_energies = []
 #nequip_energies = []

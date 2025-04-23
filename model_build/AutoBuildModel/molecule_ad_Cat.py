@@ -112,13 +112,13 @@ def random_place(size):
     # 随机参数范围！！！
     x_range = [0,2.7*x]#Ru-Ru = 2.7A
     y_range = [0,2.7*y*((3**0.5)/2)]
-    z_range = [3,5]#can change
+    z_range = [2,5]#can change
     x_sv = np.random.uniform(x_range[0], x_range[1])
     y_sv = np.random.uniform(y_range[0], y_range[1])
     z_sv = np.random.uniform(z_range[0], z_range[1])
     sv = [x_sv,y_sv,z_sv]
-    theta_z = np.random.uniform(0, 2*np.pi)
-    varphi_y = np.random.uniform(0, 2*np.pi)
+    theta_z = np.degrees(np.random.uniform(0, 2*np.pi))
+    varphi_y = np.degrees(np.random.uniform(0, 2*np.pi))
     return sv,theta_z,varphi_y
 ## 检查原子之间距离（H：0.5埃；other atom：1埃）
 def check_dist_between_atoms(structure):
@@ -185,7 +185,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
     txt_name = save_path + '//floder_name.txt'
     with open(txt_name, 'w') as file:
         pass
-    if 'ASEtoadG_output' in moltxt:#未完成
+    if 'ASEtoadG_output' in moltxt:
         for i in range(group_num):
             path_of_mol = molfloder+'//'+adGroup_filelist[i]
             addfile = list(adGroup_filelist[i].split('_')) 
@@ -197,7 +197,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
             else:
                 adG_n = re.sub(r"^", "--",adGroup_name)
             with open(txt_name, 'a') as file:
-                species_file_floder_name = adG_n+'_'+addfile[0]
+                species_file_floder_name = adG_n
                 file.write(f'{species_file_floder_name}:{addfile[0]}\n')
             j = 1
             while j <= random_mol_num:#随机模型数量
@@ -225,7 +225,7 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
                 mol = rotate_mol(adGroup_mol,(theta_z,'z'),(varphi_y,'y'))
                 system = place_mol_on_surface(mol,ru_surface,sv)
                 if check_dist_between_atoms(system) == True and check_molecule_over_surface(ru_surface,mol,sv) == True:
-                    floder_n = save_path+'/'+adGroup_name
+                    floder_n = save_path+'/'+adGroup_name+'/'+str(j)
                     #file_n=str(j)+'_'+adGroup_name+'.vasp'
                     file_n = 'POSCAR'
                     save_file(floder_n,file_n,system)
@@ -235,8 +235,4 @@ def build_random_system(element,size,moltxt,molfloder,save_path,random_mol_num):
 
 
 
-
-
-'''Example:'''
-#build_random_system('Ru',(4,4,4),'ASE//output//ASEtoadG_output//species_name.txt','ASE//output//ASEtoadG_output//species','ASE//output//mol_to_ad',100)
     
