@@ -1,4 +1,4 @@
-'''v1.0.7'''
+# -*- coding: utf-8 -*-
 import ast
 from ase import Atoms
 from ase.build import rotate

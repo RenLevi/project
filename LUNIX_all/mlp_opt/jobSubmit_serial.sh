@@ -23,9 +23,16 @@ run_task() {
     cd ..
 }
 
-# 遍历每个结构目录并顺序执行任务
-for dir in struct_*/; do
-    run_task "$dir"
+find "$parent_folder" -mindepth 1 -maxdepth 1 -type d | while read -r subfolder; do
+    # 进入子文件夹
+    cd "$subfolder" || exit
+        # 遍历每个结构目录并顺序执行任务
+    for dir in struct_*/; do
+        run_task "$dir"
+    done
+    echo "All jobs completed"
+    
+    # 返回母文件夹
+    cd "$parent_folder" || exit
 done
 
-echo "All jobs completed"

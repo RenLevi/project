@@ -1,8 +1,7 @@
-from aseAtoms_to_adAtoms_new import mollist_to_adGroup_files
+# -*- coding: utf-8 -*-
 from SMILES_to_aseAtoms import mollist_to_files
 from molecule_ad_Cat import build_random_system
-""""
-    
+"""" 
     DO NOT name your file as 'mollist.txt',if your file is NOT created by CNnet
     
 """
@@ -10,7 +9,7 @@ from molecule_ad_Cat import build_random_system
 '''生成吸附基团'''
 txtName = 'mollist.txt'
 fileFormat ='xyz'
-savePath = "cal//output//"
+savePath = "/work/home/ac877eihwp/renyqcal/output/"
 element = 'Ru'
 folderName = ['ASEtoadG_output','SMItoASE_output','mol_to_ad']
 
