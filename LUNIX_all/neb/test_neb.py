@@ -3,7 +3,7 @@ from ase.io import read, write
 from nequip.ase import NequIPCalculator
 from ase.neb import NEB
 
-model_path = '/public/home/ac877eihwp/renyq/val/prototypeModel.pth'
+model_path = '/work/home/ac877eihwp/renyq/LUNIX_all/mlp_opt/prototypeModel.pth'
 calc = NequIPCalculator.from_deployed_model(model_path, device='cpu')
 
 

@@ -1,6 +1,7 @@
 import readReaction as rR
 import os
 import shutil
+import ast
 def txt_to_dict(filename):
     dictionary = {}
     with open(filename, 'r') as file:
@@ -44,38 +45,71 @@ def copyFiles(source_file,dest_folder):
 
 path0 = 'reactionslist.txt'
 path1 = 'cal/output/mol_to_ad/floder_name.txt'
-path2 = 'cal/output/mol_to_ad/checkbondpass.txt'
-path3 = 'cal/output/mol_to_ad/wrong.txt'
-path4 = 'cal/output/'
+path2_1 = 'cal/output/mol_to_ad/checkbondpass.txt'
+path2_2 = 'cal/val/mol_to_ad/checkbondpass.txt'
+path3 = 'cal/val/mol_to_ad/wrong.txt'
+path4 = 'cal/'
 path5 = 'cal/output/mol_to_ad/'
 mainfolder = path4+'neb/'
 os.makedirs(mainfolder, exist_ok=True)  # exist_ok=True 避免目录已存在时报错
 folder_dict = txt_to_dict(path1)
-dict_pass = txt_to_dict(path2)
+dict_pass1 = txt_to_dict(path2_1)
+dict_pass2 = txt_to_dict(path2_2)
 wrongdict = txt_to_dict(path3)
 wrong = list(wrongdict.keys())
 reaction_list = read_file_line_by_line(path0)
-
 with open(mainfolder+'foldername.txt', 'w') as file:
     pass
 for reaction in reaction_list:
     rlist = rR.str2list(reaction)
     if rlist[0][0] in wrong or rlist[-1][0] in wrong:
-        pass
+        if rlist[0][0] in wrong:
+            initial=rlist[0][0]
+            state_ini=wrongdict[initial]
+        else:
+            state_ini='Pass'
+        if rlist[-1][0] in wrong:
+            final= rlist[-1][0]
+            state_fin=wrongdict[final]
+        else:
+            state_fin='Pass'
+        if  state_ini in ['Dissociation','wrong'] or state_fin in ['Dissociation','wrong']:
+            pass
+        else:#not ads
+            subfolder = mainfolder + str(rlist[0][0])+'_'+str(rlist[-1][0])+'/'
+            with open(mainfolder+'foldername.txt', 'a') as file:
+                reaction_floder_name = str(rlist[0][0])+'_'+str(rlist[-1][0])
+                file.write(f'{reaction_floder_name}:{reaction}\n')
+            os.makedirs(subfolder, exist_ok=True)
+            file1 = path5+str(rlist[0][0])+'/struct_1'+'/opt.vasp'
+            file2 = path5+str(rlist[-1][0])+'/struct_1'+'/opt.vasp'
+            RR = rR.readreaction(file1,file2,reaction,noads=True)
+            RR.readfile()
+            RR.save(subfolder,'POSCAR')
+            copyFiles('LUNIX_all/neb/test_neb.py',subfolder)
+            #copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
     else:
         subfolder = mainfolder + str(rlist[0][0])+'_'+str(rlist[-1][0])+'/'
         with open(mainfolder+'foldername.txt', 'a') as file:
             reaction_floder_name = str(rlist[0][0])+'_'+str(rlist[-1][0])
             file.write(f'{reaction_floder_name}:{reaction}\n')
         os.makedirs(subfolder, exist_ok=True)
-        file1 = path5+str(rlist[0][0])+'/opt.vasp'
-        file2 = path5+str(rlist[-1][0])+'/opt.vasp'
+        if rlist[0][0] in dict_pass1:
+            list1 =ast.literal_eval(dict_pass1[rlist[0][0]])
+        else:
+            list1 =ast.literal_eval(dict_pass2[rlist[0][0]])
+        if rlist[-1][0] in dict_pass1:
+            list2 =ast.literal_eval(dict_pass1[rlist[-1][0]])
+        else:
+            list2 =ast.literal_eval(dict_pass2[rlist[-1][0]])
+        file1 = path5+str(rlist[0][0])+'/struct_'+list1[0]+'/opt.vasp'
+        file2 = path5+str(rlist[-1][0])+'/struct_'+list2[0]+'/opt.vasp'
         RR = rR.readreaction(file1,file2,reaction)
         RR.readfile()
         RR.save(subfolder,'POSCAR')
         copyFiles('LUNIX_all/neb/test_neb.py',subfolder)
-        copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
-
+        #copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
+#copyFiles('LUNIX_all/neb/jobsubneb.sh',)
 
 
 

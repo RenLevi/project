@@ -25,8 +25,10 @@ def find_files(directory, pattern):
 
 if __name__ == "__main__":
     # 示例用法
-    path1 = 'cal/output/mol_to_ad/floder_name.txt'
-    path2 = 'cal/output/mol_to_ad/'
+    #path1 = 'cal/output/mol_to_ad/floder_name.txt'
+    #path2 = 'cal/output/mol_to_ad/'
+    path1 = 'cal/val/mol_to_ad/floder_name.txt'
+    path2 = 'cal/val/mol_to_ad/'
     folder_dict = txt_to_dict(path1)
     namelist = list(folder_dict.keys())
     smileslist =list(folder_dict.values())
@@ -37,10 +39,12 @@ if __name__ == "__main__":
     with open(txt2, 'w') as file:
         pass
     for i in range(len(namelist)):
+        count_spilt = 0
+        count_noads =0
         foldername = namelist[i]
         sminame = smileslist[i]
-        for i in range(1,2):
-            fp = path2+foldername+'/'+str(i)
+        for i in range(1,3):
+            fp = path2+foldername+'/'+'struct_'+str(i)
             test = checkBonds()
             test.input(fp+'/opt.vasp')
             if test.CheckPBC() == True:
@@ -52,15 +56,28 @@ if __name__ == "__main__":
             output.build()
             if output.smiles == foldername  and output.ads != []:
                 with open(txt1, 'a') as file:
-                    file.write(f'{foldername}_{i}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
+                    file.write(f'{foldername}:["{i}","{output.smiles}",{output.smiles == sminame},{output.ads != []}]\n')
                     print(f'{foldername}_{i} check pass')
+                    break
             else:
-                with open(txt2,'a') as file:
-                    file.write(f'{foldername}_{i}:[{output.smiles},{output.smiles == sminame},{output.ads != []}]\n')
-                    if output.smiles != foldername:
-                        print(f'{foldername}_{i} have wrong with SMILES')
-                    if output.ads == []:
-                        print(f'{foldername}_{i} have wrong with adsorption')
+                if output.smiles != foldername:
+                    count_spilt +=1
+                else:
+                    pass
+                if output.ads == []:
+                    count_noads +=1
+        with open(txt2,'a') as file:
+            f =2
+            if count_spilt == f:
+                file.write(f'{foldername}:Dissociation\n')
+                print(f'{foldername} have wrong with bonds')
+            if count_noads == f:
+                file.write(f'{foldername}:Not adsorbed\n')
+                print(f'{foldername}_{i} have wrong with adsorption')
+            if count_noads+count_spilt==f and count_spilt!=f and count_noads!=f:
+                file.write(f'{foldername}:wrong\n')
+                print(f'{foldername}_{i} have wrong with adsorption and split')
+
 
 
             

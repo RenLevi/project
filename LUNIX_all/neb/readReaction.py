@@ -4,6 +4,27 @@ from CheckNN import *
 from ase.io import write
 import numpy as np
 import copy
+from ase.data import covalent_radii, atomic_numbers
+def are_vectors_parallel(v1, v2, tol=1e-6):
+    """
+    检查两向量是否方向相同（或相反）。
+    返回:
+        True  (方向相同: 点积 ≈ 1)
+        True  (方向相反: 点积 ≈ -1)
+        False (其他情况)
+    """
+    v1_unit = v1 / np.linalg.norm(v1)
+    v2_unit = v2 / np.linalg.norm(v2)
+    dot_product = np.dot(v1_unit, v2_unit)
+    return np.isclose(abs(dot_product), 1.0, atol=tol)
+def angle_between_vectors(v1, v2):
+    """使用NumPy的线性代数函数"""
+    # 归一化向量
+    v1_u = v1 / np.linalg.norm(v1)
+    v2_u = v2 / np.linalg.norm(v2)
+    # 计算夹角的余弦值
+    cos_theta = np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)
+    return np.degrees(np.arccos(cos_theta))
 def add_brackets_around_letters(cnmol:str):# 使用正则表达式替换不在[]中的字母字符，前后添加[]:example:[H]CO==>[H][C][O]
     result = re.sub(r'(?<!\[)([a-zA-Z])(?!\])', r'[\g<1>]', cnmol)
     return result
@@ -79,7 +100,7 @@ def checkbond(reaction:list,bms1,bms2):
             return warp(cs12)
             
 def check_molecule_over_surface_and_not_cross_pbc(atoms):
-    z_max = 16.415
+    z_max = 17.415
     z_plist=[]
     nonmetals = ['H', 'He', 
                  'B', 'C', 'N', 'O', 'F', 'Ne',
@@ -98,7 +119,7 @@ def check_molecule_over_surface_and_not_cross_pbc(atoms):
         return False
     else:    return True
 
-def adjust_distance(atoms, index1, index2,idlist,new_distance,delta=0):
+def adjust_distance(readatoms, index1, index2,idlist,new_distance=0,delta=0,noads=False):
     """
     调整两个原子之间的距离
     
@@ -108,9 +129,33 @@ def adjust_distance(atoms, index1, index2,idlist,new_distance,delta=0):
         index2: 第二个原子的索引
         new_distance: 新的距离 (Å)
     """
+    atoms = copy.deepcopy(readatoms)
     pos1 = atoms.positions[index1]
     pos2 = atoms.positions[index2]
-    
+    n1 = atoms.get_masses()[index1]
+    n2 = atoms.get_masses()[index2]
+    if noads == False:pass
+    else:
+        molIdxlist=[]
+        for atom in atoms:
+            if atom.symbol in ['C','H','O']:
+                molIdxlist.append(atom.index)
+            else:pass
+        group = atoms[molIdxlist]
+        v_important = pos2-pos1
+        z= np.array([0,0,-1])
+        theta = angle_between_vectors(v_important,z)
+        axis_vz= np.cross(v_important,z)
+        group.rotate(v=axis_vz,a=theta,center=pos1)
+        val=v_important
+        if are_vectors_parallel(val,np.array([0,0,-1])) == False:
+            group.rotate(v=axis_vz,a=-2*theta,center=pos1)
+        group.translate((0,0,17.5-pos1[2]))
+        atoms.positions[molIdxlist] = group.positions
+        print(f'{pos2-pos1}')
+    r_1 = covalent_radii[int(n1)]
+    r_2 = covalent_radii[int(n2)]
+    new_distance = (r_1 + r_2)+0.45
     vector = pos2 - pos1
     unit_vector = vector / np.linalg.norm(vector)
     v = unit_vector * new_distance
@@ -119,11 +164,22 @@ def adjust_distance(atoms, index1, index2,idlist,new_distance,delta=0):
     h = np.array([0,0,z1-pos2_new[2]])
     v13 = (v+h)*np.linalg.norm(v)/np.linalg.norm(v+h)
     v_final = copy.deepcopy(v13)
-    newatoms = copy.deepcopy(atoms)
     # 移动第二个原子到新位置
     for id in idlist:
-        newatoms.positions[id] = newatoms.positions[id]+v_final
-    return newatoms
+        atoms.positions[id] = atoms.positions[id]+v_final
+    if noads == False:pass
+    else:
+        addgroup = atoms[idlist]
+        v_important = pos2-pos1
+        z= np.array([0,0,-1])
+        theta = angle_between_vectors(v_important,z)
+        axis_vz= np.cross(v_important,z)
+        addgroup.rotate(v=axis_vz,a=theta,center=pos2)
+        val=pos2-pos1
+        if are_vectors_parallel(val,np.array([0,0,-1])) == False:
+            addgroup.rotate(v=axis_vz,a=-2*theta,center=pos1)
+        atoms.positions[idlist]=addgroup.positions
+    return atoms
 def check_neighbor(id,cb):
     idlist = []
     centeratom = cb.atoms[id]
@@ -133,10 +189,11 @@ def check_neighbor(id,cb):
     idlist.append(centeratom.id)
     return idlist
 class readreaction():
-    def __init__(self,file1,file2,reaction):# file1> reaction > file2
+    def __init__(self,file1,file2,reaction,noads=False):# file1> reaction > file2
         self.mol1 = file1
         self.mol2 = file2
         self.r = str2list(reaction)
+        self.noads = noads
     def readfile(self):
         def warp(id,cb):
             ba = cb.atoms[id]
@@ -156,7 +213,6 @@ class readreaction():
         BMS2 = BuildMol2Smiles(CB2)
         BMS2.build()
         begin_id,end_id,smilesFORcheck = checkbond(self.r,BMS1,BMS2)
-        print(begin_id,end_id)
         Bid_infile = begin_id +BMS1.metal 
         Eid_infile = end_id +BMS1.metal
         reactiontype = self.r[1][0]
@@ -168,18 +224,22 @@ class readreaction():
         else:
             CB = CB1
             self.nebFS = CB1.poscar
+        if CB.adsorption == []:
+            noads = True
+        else:
+            noads = False
         if warp(Bid_infile,CB) == True:
             idlist = check_neighbor(Eid_infile,CB)
             idlist.remove(Bid_infile)
-            newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,3)#2埃
+            newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,noads=noads)
             if check_molecule_over_surface_and_not_cross_pbc(newmol) == False:
-                newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,2,1)
+                newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,delta=1,noads=noads)
         else:
             idlist = check_neighbor(Bid_infile,CB)
             idlist.remove(Eid_infile)
-            newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,3)
+            newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,noads=noads)
             if check_molecule_over_surface_and_not_cross_pbc(newmol) == False:
-                newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,2,1)
+                newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,delta=1,noads=noads)
         self.nebIS = newmol
         self.check =smilesFORcheck 
     def save(self,path,format):

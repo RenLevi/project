@@ -1,4 +1,4 @@
-'''v1.1.0'''
+# -*- coding: utf-8 -*-
 #input:txt of SMILES ===> output:.xyz of ads_molecules(Product,Reactant,Intermediate)
 from openbabel import pybel
 import openbabel as ob

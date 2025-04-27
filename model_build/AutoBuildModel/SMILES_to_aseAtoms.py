@@ -1,4 +1,4 @@
-'''v1.1.0'''
+# -*- coding: utf-8 -*-
 #input:txt of SMILES ===> output:.xyz of molecules(Product,Reactant,Intermediate)
 from openbabel import pybel
 import numpy as np
@@ -59,7 +59,7 @@ def mollist_to_files(mollist,file_format,save_path):#mollist=='mollist.txt
     
     """
 
-    if mollist == 'mollist.txt':
+    if 'mollist.txt' in mollist:
         mol_list = CatNetmol_to_SMILES(mollist)#[H][C][H]
     else:
         mol_list = File_to_SMILES(mollist)
