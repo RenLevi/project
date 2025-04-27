@@ -16,5 +16,4 @@ class bond():
         else:
             return 0
 
-#print(covalent_radii[6]+covalent_radii[8]+0.45)
 

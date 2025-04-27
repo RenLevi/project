@@ -10,13 +10,13 @@ def are_vectors_parallel(v1, v2, tol=1e-6):
     检查两向量是否方向相同（或相反）。
     返回:
         True  (方向相同: 点积 ≈ 1)
-        True  (方向相反: 点积 ≈ -1)
+        false  (方向相反: 点积 ≈ -1)
         False (其他情况)
     """
     v1_unit = v1 / np.linalg.norm(v1)
     v2_unit = v2 / np.linalg.norm(v2)
     dot_product = np.dot(v1_unit, v2_unit)
-    return np.isclose(abs(dot_product), 1.0, atol=tol)
+    return np.isclose(dot_product, 1.0, atol=tol)
 def angle_between_vectors(v1, v2):
     """使用NumPy的线性代数函数"""
     # 归一化向量
@@ -97,8 +97,7 @@ def checkbond(reaction:list,bms1,bms2):
             else:
                 return o1,o2
         else:
-            return warp(cs12)
-            
+            return warp(cs12)          
 def check_molecule_over_surface_and_not_cross_pbc(atoms):
     z_max = 17.415
     z_plist=[]
@@ -118,7 +117,6 @@ def check_molecule_over_surface_and_not_cross_pbc(atoms):
         print(f'部分原子位于催化剂表面以下')
         return False
     else:    return True
-
 def adjust_distance(readatoms, index1, index2,idlist,new_distance=0,delta=0,noads=False):
     """
     调整两个原子之间的距离
@@ -140,43 +138,50 @@ def adjust_distance(readatoms, index1, index2,idlist,new_distance=0,delta=0,noad
         for atom in atoms:
             if atom.symbol in ['C','H','O']:
                 molIdxlist.append(atom.index)
+                print(atom.index,atom.position)
             else:pass
         group = atoms[molIdxlist]
+        for a in group:
+            if np.allclose(a.position, pos2, atol=1e-6):
+                group_pos2_idx = a.index
+            if np.allclose(a.position, pos1, atol=1e-6):
+                group_pos1_idx = a.index
         v_important = pos2-pos1
-        z= np.array([0,0,-1])
+        z= np.array([0.05,0,-1])
         theta = angle_between_vectors(v_important,z)
         axis_vz= np.cross(v_important,z)
         group.rotate(v=axis_vz,a=theta,center=pos1)
-        val=v_important
+        val=group.positions[group_pos2_idx]-group.positions[group_pos1_idx]
         if are_vectors_parallel(val,np.array([0,0,-1])) == False:
             group.rotate(v=axis_vz,a=-2*theta,center=pos1)
         group.translate((0,0,17.5-pos1[2]))
         atoms.positions[molIdxlist] = group.positions
-        print(f'{pos2-pos1}')
+
+
     r_1 = covalent_radii[int(n1)]
     r_2 = covalent_radii[int(n2)]
-    new_distance = (r_1 + r_2)+0.45
-    vector = pos2 - pos1
-    unit_vector = vector / np.linalg.norm(vector)
-    v = unit_vector * new_distance
-    pos2_new = v+pos1
-    z1= pos1[2]+delta
-    h = np.array([0,0,z1-pos2_new[2]])
-    v13 = (v+h)*np.linalg.norm(v)/np.linalg.norm(v+h)
-    v_final = copy.deepcopy(v13)
+    new_distance = (r_1 + r_2)+0.5
+    p2=pos2#atoms.positions[index2]
+    p1=pos1#atoms.positions[index1]
+    p21=np.array([p2[0],p2[1],p1[2]])
+    p22 = p1+(p21-p1)/np.linalg.norm(p21-p1)*new_distance
+    v_final = copy.deepcopy(p22-p2)
     # 移动第二个原子到新位置
     for id in idlist:
         atoms.positions[id] = atoms.positions[id]+v_final
     if noads == False:pass
     else:
         addgroup = atoms[idlist]
+        for a in addgroup:
+            if np.allclose(a.position, pos2, atol=1e-6):
+                addgroup_pos2_idx = a.index
         v_important = pos2-pos1
         z= np.array([0,0,-1])
         theta = angle_between_vectors(v_important,z)
         axis_vz= np.cross(v_important,z)
         addgroup.rotate(v=axis_vz,a=theta,center=pos2)
-        val=pos2-pos1
-        if are_vectors_parallel(val,np.array([0,0,-1])) == False:
+        addval=addgroup.positions[addgroup_pos2_idx]-pos1
+        if are_vectors_parallel(addval,np.array([0,0,-1])) == False:
             addgroup.rotate(v=axis_vz,a=-2*theta,center=pos1)
         atoms.positions[idlist]=addgroup.positions
     return atoms
@@ -233,13 +238,19 @@ class readreaction():
             idlist.remove(Bid_infile)
             newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,noads=noads)
             if check_molecule_over_surface_and_not_cross_pbc(newmol) == False:
-                newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,delta=1,noads=noads)
+                for i in range(1,11):
+                    newmol = adjust_distance(CB.poscar,Bid_infile,Eid_infile,idlist,delta=0.1*i,noads=noads)
+                    if check_molecule_over_surface_and_not_cross_pbc(newmol) == True:
+                        break
         else:
             idlist = check_neighbor(Bid_infile,CB)
             idlist.remove(Eid_infile)
             newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,noads=noads)
             if check_molecule_over_surface_and_not_cross_pbc(newmol) == False:
-                newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,delta=1,noads=noads)
+                for i in range(1,11):
+                    newmol = adjust_distance(CB.poscar,Eid_infile,Bid_infile,idlist,delta=0.1*i,noads=noads)
+                    if check_molecule_over_surface_and_not_cross_pbc(newmol) == True:
+                        break
         self.nebIS = newmol
         self.check =smilesFORcheck 
     def save(self,path,format):
