@@ -9,7 +9,7 @@
 #SBATCH -e %j.err
 
 source ~/.bashrc
-conda activate op
+conda activate nequip
 
 echo "Starting optimization" | tee -a resLog.out
 python mlp_calEnergy.py | tee -a resLog.out

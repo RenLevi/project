@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J sequential_opt       # 作业名
+#SBATCH -J sequential_neb       # 作业名
 #SBATCH -p wzhcnormal           # 队列名
 #SBATCH -N 1                    # 节点数
 #SBATCH --ntasks-per-node=28    # 每节点进程数
@@ -11,24 +11,20 @@ source ~/.bashrc
 conda activate op
 # 定义一个函数来执行任务
 function run_task() {
-    local subdir=$1
-    echo "Starting optimization in directory: $subdir"
-    cd "$subdir"
+    local dir=$1
+    echo "Starting optimization in directory: $dir"
     echo "Starting optimization" | tee -a resLog.out
-    python mlp_calEnergy.py | tee -a resLog.out
+    python test_neb.py | tee -a resLog.out
     echo "" | tee -a resLog.out
-    echo "Evaluation finished in directory: $dsubdir"
+    echo "Evaluation finished"
     echo "See resLog.out to check the results"
-    cd ..
 }
 for dir in */;do
-    echo "enter folder to optimization :$dir"
+    echo "enter folder to start neb to search TS :$dir"
     cd "$dir"
-    for subdir in struct_*/; do
-        run_task "$subdir"
-    done
+    run_task "$dir"
     cd ..
-    echo "finish optimization in folder :$dir"
+    echo "finish searching TS in folder :$dir"
 done
 echo "All jobs completed"
 

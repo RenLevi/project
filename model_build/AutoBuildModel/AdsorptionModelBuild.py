@@ -9,7 +9,7 @@ from molecule_ad_Cat import build_random_system
 '''生成吸附基团'''
 txtName = 'mollist.txt'
 fileFormat ='xyz'
-savePath = "/work/home/ac877eihwp/renyqcal/output/"
+savePath = "cal/output/"
 element = 'Ru'
 folderName = ['ASEtoadG_output','SMItoASE_output','mol_to_ad']
 
@@ -21,5 +21,5 @@ mollist_to_files(txtName,fileFormat,savePath+folderName[1])
 print(f"finish saving all files of free radical in folder called {folderName[1]}")
 
 '''生成随机结构'''
-build_random_system(element,(4,4,4),savePath+folderName[1]+'//species_name.txt',savePath+folderName[1]+'//species',savePath+folderName[2],50)
+build_random_system(element,(4,4,4),savePath+folderName[1]+'//species_name.txt',savePath+folderName[1]+'//species',savePath+folderName[2],2)
 print(f"finish saving all files of adsorption Systems in folder called {folderName[2]}")

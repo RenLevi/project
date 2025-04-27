@@ -59,7 +59,7 @@ def mollist_to_files(mollist,file_format,save_path):#mollist=='mollist.txt
     
     """
 
-    if mollist == 'mollist.txt':
+    if 'mollist.txt' in mollist:
         mol_list = CatNetmol_to_SMILES(mollist)#[H][C][H]
     else:
         mol_list = File_to_SMILES(mollist)
