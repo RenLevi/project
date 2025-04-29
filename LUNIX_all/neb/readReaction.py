@@ -155,12 +155,12 @@ def adjust_distance(readatoms, index1, index2,idlist,new_distance=0,delta=0,noad
         print(f'{pos2-pos1}')
     r_1 = covalent_radii[int(n1)]
     r_2 = covalent_radii[int(n2)]
-    new_distance = (r_1 + r_2)+0.45
+    new_distance = 1.5*(r_1 + r_2)
     vector = pos2 - pos1
     unit_vector = vector / np.linalg.norm(vector)
     v = unit_vector * new_distance
     pos2_new = v+pos1
-    z1= pos1[2]+delta
+    z1= 17+delta#pos1[2]+delta
     h = np.array([0,0,z1-pos2_new[2]])
     v13 = (v+h)*np.linalg.norm(v)/np.linalg.norm(v+h)
     v_final = copy.deepcopy(v13)

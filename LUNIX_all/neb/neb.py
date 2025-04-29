@@ -44,9 +44,8 @@ def read_data(file_name):
     BFGS(Atoms).run(fmax=0.01)
     return Atoms
 
+
 IS, FS = read_data('IS.vasp'), read_data('FS.vasp')
-#write('IS7.xyz', IS)
-#write('FS7.xyz', FS)
 
 TS = run_neb(IS, FS, 8, 'TS')
 
