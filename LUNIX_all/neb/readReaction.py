@@ -166,6 +166,19 @@ def adjust_distance(readatoms, index1, index2,idlist,new_distance=0,delta=0,noad
     p21=np.array([p2[0],p2[1],p1[2]])
     p22 = p1+(p21-p1)/np.linalg.norm(p21-p1)*new_distance
     v_final = copy.deepcopy(p22-p2)
+    distance = 2*(r_1 + r_2+0.45)
+    if distance > 3:
+        new_distance = 3
+    else:
+        new_distance = distance
+    vector = pos2 - pos1
+    unit_vector = vector / np.linalg.norm(vector)
+    v = unit_vector * new_distance
+    pos2_new = v+pos1
+    z1= 17.5+delta#pos1[2]+delta
+    h = np.array([0,0,z1-pos2_new[2]])
+    v13 = (v+h)*np.linalg.norm(v)/np.linalg.norm(v+h)
+    v_final = copy.deepcopy(v13)
     # 移动第二个原子到新位置
     for id in idlist:
         atoms.positions[id] = atoms.positions[id]+v_final

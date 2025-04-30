@@ -49,7 +49,7 @@ path2_1 = 'cal/output/mol_to_ad/checkbondpass.txt'
 path2_2 = 'cal/val/mol_to_ad/checkbondpass.txt'
 path3 = 'cal/val/mol_to_ad/wrong.txt'
 path4 = 'cal/'
-path5 = 'cal/output/mol_to_ad/'
+path5 = ['cal/output/mol_to_ad/','cal/val/mol_to_ad/']
 mainfolder = path4+'neb/'
 os.makedirs(mainfolder, exist_ok=True)  # exist_ok=True 避免目录已存在时报错
 folder_dict = txt_to_dict(path1)
@@ -81,13 +81,13 @@ for reaction in reaction_list:
                 reaction_floder_name = str(rlist[0][0])+'_'+str(rlist[-1][0])
                 file.write(f'{reaction_floder_name}:{reaction}\n')
             os.makedirs(subfolder, exist_ok=True)
-            file1 = path5+str(rlist[0][0])+'/struct_1'+'/opt.vasp'
-            file2 = path5+str(rlist[-1][0])+'/struct_1'+'/opt.vasp'
+            file1 = path5[0]+str(rlist[0][0])+'/struct_1'+'/opt.vasp'
+            file2 = path5[0]+str(rlist[-1][0])+'/struct_1'+'/opt.vasp'
             RR = rR.readreaction(file1,file2,reaction,noads=True)
             RR.readfile()
             RR.save(subfolder,'POSCAR')
             copyFiles('LUNIX_all/neb/test_neb.py',subfolder)
-            #copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
+            copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
     else:
         subfolder = mainfolder + str(rlist[0][0])+'_'+str(rlist[-1][0])+'/'
         with open(mainfolder+'foldername.txt', 'a') as file:
@@ -95,21 +95,25 @@ for reaction in reaction_list:
             file.write(f'{reaction_floder_name}:{reaction}\n')
         os.makedirs(subfolder, exist_ok=True)
         if rlist[0][0] in dict_pass1:
+            val1=0
             list1 =ast.literal_eval(dict_pass1[rlist[0][0]])
         else:
+            val1=1
             list1 =ast.literal_eval(dict_pass2[rlist[0][0]])
         if rlist[-1][0] in dict_pass1:
+            val2=0
             list2 =ast.literal_eval(dict_pass1[rlist[-1][0]])
         else:
+            val2=1
             list2 =ast.literal_eval(dict_pass2[rlist[-1][0]])
-        file1 = path5+str(rlist[0][0])+'/struct_'+list1[0]+'/opt.vasp'
-        file2 = path5+str(rlist[-1][0])+'/struct_'+list2[0]+'/opt.vasp'
+        file1 = path5[val1]+str(rlist[0][0])+'/struct_'+list1[0]+'/opt.vasp'
+        file2 = path5[val2]+str(rlist[-1][0])+'/struct_'+list2[0]+'/opt.vasp'
         RR = rR.readreaction(file1,file2,reaction)
         RR.readfile()
         RR.save(subfolder,'POSCAR')
         copyFiles('LUNIX_all/neb/test_neb.py',subfolder)
-        #copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
-#copyFiles('LUNIX_all/neb/jobsubneb.sh',)
+        copyFiles('LUNIX_all/neb/jobsubneb.sh',subfolder)
+
 
 
 
